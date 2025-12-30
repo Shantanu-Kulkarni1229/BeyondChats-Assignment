@@ -32,7 +32,7 @@ const ArticleCard = ({ article, onEnhance, onView, onDelete, onCompare, isEnhanc
         </div>
       )}
       
-      {/* Delete button in top right */}}
+      {/* Delete button in top right */}
       <button
         onClick={() => onDelete(article)}
         className="absolute top-3 right-3 text-red-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-[#001433]/80 p-2 rounded-full"
