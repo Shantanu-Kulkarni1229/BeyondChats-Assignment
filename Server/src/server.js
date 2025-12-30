@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from 'cors';
 import connectDB from './config/connectDb.js';
 import articleRoutes from './routes/article.routes.js';
+import enhanceRoutes from './routes/enhance.routes.js';
 
 dotenv.config();
 
@@ -33,18 +34,30 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/articles', articleRoutes);
+app.use('/api/enhance', enhanceRoutes);
 
 // Root route
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
     message: 'BeyondChats Article API',
-    version: '1.0.0',
+    version: '2.0.0',
+    phase: 'Phase 2 - AI-Powered Article Enhancement',
     endpoints: {
+      // Phase 1 endpoints
       health: '/health',
       articles: '/api/articles',
       scrape: '/api/articles/scrape',
-      stats: '/api/articles/stats'
+      stats: '/api/articles/stats',
+      // Phase 2 endpoints
+      enhance: '/api/enhance/:id',
+      enhanceBatch: '/api/enhance/batch',
+      enhanceAll: '/api/enhance/all',
+      availableArticles: '/api/enhance/available',
+      enhanceStats: '/api/enhance/stats',
+      testSearch: '/api/enhance/test/search',
+      testScrape: '/api/enhance/test/scrape',
+      testGroq: '/api/enhance/test/groq'
     }
   });
 });
