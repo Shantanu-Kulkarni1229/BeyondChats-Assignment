@@ -84,6 +84,28 @@ export const scrapeContent = async (url) => {
       $('img').first().attr('src') ||
       '';
 
+    // Extract all images from the article
+    const images = [];
+    $('article img, main img, .article-content img, .post-content img, .entry-content img, .content img').each((i, elem) => {
+      const src = $(elem).attr('src');
+      if (src && !src.includes('data:image')) {
+        // Convert relative URLs to absolute
+        const absoluteUrl = src.startsWith('http') ? src : new URL(src, url).href;
+        images.push(absoluteUrl);
+      }
+    });
+
+    // If no images found in article tags, try all images
+    if (images.length === 0) {
+      $('img').each((i, elem) => {
+        const src = $(elem).attr('src');
+        if (src && !src.includes('data:image')) {
+          const absoluteUrl = src.startsWith('http') ? src : new URL(src, url).href;
+          images.push(absoluteUrl);
+        }
+      });
+    }
+
     // Clean and format the content
     mainContent = cleanContent(mainContent);
 
@@ -97,6 +119,7 @@ export const scrapeContent = async (url) => {
       publishDate: cleanText(publishDate),
       description: cleanText(description),
       image: image || '',
+      images: images.slice(0, 10), // Limit to first 10 images
       wordCount: mainContent.split(/\s+/).length,
       scrapedAt: new Date()
     };

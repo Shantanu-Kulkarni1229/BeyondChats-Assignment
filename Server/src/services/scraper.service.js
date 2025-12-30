@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import { scrapeContent } from './contentScraper.service.js';
 
 
 const scrapeArticles = async () => {
@@ -97,9 +98,36 @@ const scrapeArticles = async () => {
       .sort((a, b) => new Date(a.date) - new Date(b.date))
       .slice(0, 5);
 
-    console.log(`📝 Returning ${oldestArticles.length} oldest articles`);
+    console.log(`📝 Scraping full content for ${oldestArticles.length} articles...`);
 
-    return oldestArticles;
+    // Now scrape the full content from each article URL
+    const articlesWithFullContent = [];
+    for (const article of oldestArticles) {
+      try {
+        console.log(`📄 Scraping full content from: ${article.url}`);
+        const fullContent = await scrapeContent(article.url);
+        
+        // Merge the listing data with full scraped content
+        articlesWithFullContent.push({
+          ...article,
+          content: fullContent.content || article.content, // Use full content if available
+          image: fullContent.image || article.image, // Use better image if available
+          images: fullContent.images || [], // Include all images
+          author: fullContent.author || '',
+          description: fullContent.description || ''
+        });
+        
+        console.log(`✅ Successfully scraped ${fullContent.content?.length || 0} characters`);
+      } catch (error) {
+        console.error(`❌ Failed to scrape full content from ${article.url}:`, error.message);
+        // Keep the article with preview content if full scraping fails
+        articlesWithFullContent.push(article);
+      }
+    }
+
+    console.log(`📝 Returning ${articlesWithFullContent.length} articles with full content`);
+
+    return articlesWithFullContent;
 
   } catch (error) {
     console.error('❌ Error scraping articles:', error.message);
